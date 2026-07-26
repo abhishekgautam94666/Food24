@@ -4,6 +4,9 @@ import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { serverUrl } from "../App";
+import { useDispatch } from "react-redux";
+import { setUserData } from "../redux/userSlice";
+
 
 export const SignUp = () => {
   const primaryColor = "#ff4d2d";
@@ -17,6 +20,9 @@ export const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mobile, setMobile] = useState("");
+  const [loding, setLoding] = useState(true);
+  const [err, setErr] = useState("");
+  const dispatch = useDispatch()
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -32,6 +38,7 @@ export const SignUp = () => {
         },
         { withCredentials: true },
       );
+      dispatch(setUserData(result.data))
       console.log(result);
       navigate("/signin");
     } catch (error) {

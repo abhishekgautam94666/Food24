@@ -4,6 +4,10 @@ import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { serverUrl } from "../App";
+import { useDispatch } from "react-redux";
+import { setUserData } from "../redux/userSlice";
+import { setMYShopData } from "../redux/ownerSlice";
+
 
 export const SignIn = () => {
   const bgColor = "#fff9f6";
@@ -12,6 +16,7 @@ export const SignIn = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const dispatch = useDispatch()
 
   const handleSignIn = async (e) => {
     e.preventDefault();
@@ -24,10 +29,14 @@ export const SignIn = () => {
         },
         { withCredentials: true },
       );
-      console.log(result);
-      
+
+      dispatch(setUserData(result.data))
+      dispatch(setMYShopData(null));
+      navigate("/");
+
+
     } catch (error) {
-      console.log("error :", error.response?.data);
+      console.log("error :", error);
     }
   };
 
@@ -105,7 +114,7 @@ export const SignIn = () => {
 
           <button className="w-full mt-4 flex items-center justify-center gap-2 border py-2.5 rounded-lg">
             <FcGoogle />
-            <span> Sign Ip with google</span>
+            <span> Sign In with google</span>
           </button>
         </form>
 

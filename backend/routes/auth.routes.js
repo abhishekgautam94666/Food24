@@ -11,6 +11,12 @@ import passport from "passport";
 import jwt from "jsonwebtoken";
 
 const authRouter = express.Router();
+
+
+
+
+
+0
 authRouter.post("/signup", signUp);
 authRouter.post("/signin", signIn);
 authRouter.post("/signout", signOut);
@@ -26,11 +32,13 @@ authRouter.get(
   "/google/callback",
   passport.authenticate("google", { session: false }),
   (req, res) => {
-    const token = jwt.sign({ id: req.user.id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ userId: req.user.id }, process.env.JWT_SECRET,{expiresIn:"7d"});
     res.cookie("token", token, {
       httpOnly: true,
+      secure:true,
+      sameSite:"none"
     });
-    res.redirect("http://localhost:5173/");
+    res.redirect("http://localhost:5173");
   },
 );
 export default authRouter;

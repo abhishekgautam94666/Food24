@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+@theme {
+  --color-primary: #14532d;
+  --color-secondary: #f8fafc;
+  --color-accent: #22c55e;
+  --color-darkText: #1e293b;
+  --color-lightGray: #e2e8f0;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
