@@ -92,8 +92,10 @@ const CheckOut = () => {
         { withCredentials: true }
       )
       toast.success(result.data.message);
+      console.log(result);
+
       setTimeout(() => {
-        navigate("/my-orders");
+        navigate("/order-placed");
       }, 1500);
     } catch (error) {
       setLoding(false)

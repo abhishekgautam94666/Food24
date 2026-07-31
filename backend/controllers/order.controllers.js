@@ -21,6 +21,7 @@ export const placeOrder = async (req, res) => {
         }
 
         cartItems.forEach(item => {
+            console.log("11", item)
             const shopId = item.shop
             if (!groupItemByShop[shopId]) {
                 groupItemByShop[shopId] = []
@@ -34,13 +35,18 @@ export const placeOrder = async (req, res) => {
                 return res.status(400).json({ message: "Restaurant  not found" })
             }
             const items = groupItemByShop[shopId]
+
+            console.log("12", items);
+
+
+
             const subtotal = items.reduce((sum, i) => sum + Number(i.price) * Number(i.quantity), 0)
             return {
                 shop: shop._id,
                 owner: shop.owner._id,
                 subtotal,
                 shopOrderItems: items.map((i) => ({
-                    item: i._id,
+                    item: i.id,
                     price: i.price,
                     quantity: i.quantity,
                     name: i.name
@@ -72,6 +78,34 @@ export const placeOrder = async (req, res) => {
             success: false,
             message: "Unable to place order. Please try again.",
         });
+    }
+}
+
+export const getUserOrders = async (req, res) => {
+    try {
+        const orders = await Order.find({ user: req.userId }).sort({ createdAt: -1 }).populate("shopOrders.shop", "name").populate("shopOrders.owner", "fullName email mobile").populate("shopOrders.shopOrderItems.item", "name image price")
+        return res.status(200).json({
+            success: true,
+            orders
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ success: false, message: `Get user orders error: ${error.message}` })
+    }
+}
+
+export const getOwnerOrder = async (req, res) => {
+    try {
+        const orders = await Order.find({ "shopOrders.owner": req.userId }).sort({ createdAt: -1 }).populate("shopOrders.shop", "name").populate("user","name email mobile").populate("shopOrders.shopOrderItems.item", "name image price")
+        console.log(orders);
+
+        return res.status(200).json({
+            success: true,
+            orders
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ success: false, message: `Get user orders error: ${error.message}` })
     }
 }
 
