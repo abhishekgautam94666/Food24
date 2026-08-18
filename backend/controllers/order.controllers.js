@@ -21,7 +21,6 @@ export const placeOrder = async (req, res) => {
         }
 
         cartItems.forEach(item => {
-            console.log("11", item)
             const shopId = item.shop
             if (!groupItemByShop[shopId]) {
                 groupItemByShop[shopId] = []
@@ -36,7 +35,6 @@ export const placeOrder = async (req, res) => {
             }
             const items = groupItemByShop[shopId]
 
-            console.log("12", items);
 
 
 
@@ -59,11 +57,13 @@ export const placeOrder = async (req, res) => {
             user: req.userId,
             paymentMethod,
             paymentStatus:
-                paymentMethod === "cod" ? "pending" : "pending",
+                paymentMethod === "cod" ? "pending" : "paid",
             deliveryAddress,
             totalAmount,
             shopOrders
         })
+        console.log("newOrder", newOrder);
+        //newOrder.populate("shopOrders.shopOrderItems.item", "name image price")
 
         return res.status(201).json({
             success: true,
@@ -96,12 +96,25 @@ export const getUserOrders = async (req, res) => {
 
 export const getOwnerOrder = async (req, res) => {
     try {
-        const orders = await Order.find({ "shopOrders.owner": req.userId }).sort({ createdAt: -1 }).populate("shopOrders.shop", "name").populate("user","name email mobile").populate("shopOrders.shopOrderItems.item", "name image price")
-        console.log(orders);
+        const orders = await Order.find({ "shopOrders.owner": req.userId }).sort({ createdAt: -1 }).populate("shopOrders.shop", "name").populate("user", "fullName email mobile").populate("shopOrders.shopOrderItems.item", "name image price")
+
+        // console.log("orders 232", orders);
+
+
+        const filtereOrder = orders.map((order) => ({
+            _id: order._id,
+            paymentMethod: order.paymentMethod,
+            Status: order.shopOrders.Status,
+            user: order.user,
+            shopOrders: order.shopOrders.find(o => o.owner._id == req.userId),
+            createdAt: order.createdAt
+
+        }))
+        //   console.log("orders 501", filtereOrder);
 
         return res.status(200).json({
             success: true,
-            orders
+            orders: filtereOrder
         })
     } catch (error) {
         console.log(error);
@@ -109,3 +122,38 @@ export const getOwnerOrder = async (req, res) => {
     }
 }
 
+export const updateOrderStatus = async (req, res) => {
+    try {
+        const { orderId, shopId } = req.params;
+        const { status } = req.body
+
+        const order = await Order.findById(orderId)
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "Order not found"
+            });
+        }
+        const shopOrder = order.shopOrders.find(o => o.shop.toString() == shopId)
+        if (!shopOrder) {
+            return res.status(400).json({ success: false, message: "shop order not found" })
+        }
+        shopOrder.status = status
+        await order.save()
+
+        console.log("shopOrder", shopOrder);
+
+        return res.status(200).json({
+            success: true,
+            message: "Order status updated successfully",
+            status: shopOrder.status
+        });
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Unable to update order status"
+        });
+    }
+};

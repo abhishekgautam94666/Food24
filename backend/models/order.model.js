@@ -20,6 +20,18 @@ const shopOrderSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
     },
+    status: {
+        type: String,
+        default: "pending",
+        enum: [
+            "pending",
+            "confirmed",
+            "preparing",
+            "out of delivery",
+            "delivered",
+            "cancelled"
+        ],
+    },
     subtotal: {
         type: Number,
         required: true,
@@ -36,11 +48,6 @@ const orderSchema = new mongoose.Schema({
         type: String,
         enum: ['cod', 'online'],
         required: true
-    },
-    paymentStatus: {
-        type: String,
-        enum: ["pending", "paid", "failed"],
-        default: "pending",
     },
     deliveryAddress: {
         text: String,

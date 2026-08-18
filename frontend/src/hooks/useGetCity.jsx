@@ -18,11 +18,10 @@ function useGetCity() {
             const result = await axios.get(`https://api.geoapify.com/v1/geocode/reverse?lat=${latitude}&lon=${longitude}&format=json&apiKey=${apiKey}`)
             dispatch(setCurrentCity(result?.data.results[0].state_district))
             dispatch(setCurrentState(result?.data.results[0].state))
-            console.log("result?.data", result?.data);
 
             dispatch(setCurrentAddress(result?.data.results[0].address_line2 || result?.data.results[0].address_line1))
             dispatch(setAddress(result?.data?.results[0].address_line2 || result?.data.results[0].address_line1))
-            
+
         })
     }, [userData])
 }

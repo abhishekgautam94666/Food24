@@ -13,6 +13,7 @@ import { MdDeliveryDining } from "react-icons/md";
 import axios from 'axios';
 import { serverUrl } from '../App'
 import toast from 'react-hot-toast';
+import { addMyOrder } from '../redux/userSlice';
 
 function RecenterMap({ location }) {
   if (location.lat && location.lon) {
@@ -92,6 +93,7 @@ const CheckOut = () => {
         { withCredentials: true }
       )
       toast.success(result.data.message);
+    //  dispatch(addMyOrder(result.data))
       console.log(result);
 
       setTimeout(() => {

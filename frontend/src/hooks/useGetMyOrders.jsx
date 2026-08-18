@@ -12,7 +12,7 @@ function useGetMyOrders() {
             try {
                 const result = await axios.get(`${serverUrl}/api/order/user-orders`, { withCredentials: true });
                 dispatch(setMyOrders(result.data?.orders))
-                console.log(result.data);
+                console.log("orders", result.data);
 
             } catch (error) {
 

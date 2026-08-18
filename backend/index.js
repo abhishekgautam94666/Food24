@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "http://localhost:5174"],
     credentials: true,
   }),
 );
@@ -26,8 +26,8 @@ app.use(passport.initialize());
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/shop", shopRouter);
-app.use("/api/item",itemRouter);
-app.use("/api/order",orderRouter)
+app.use("/api/item", itemRouter);
+app.use("/api/order", orderRouter)
 
 app.listen(port, () => {
   connectDb();

@@ -12,7 +12,7 @@ function useGetOwnerOrders() {
             try {
                 const result = await axios.get(`${serverUrl}/api/order/owner-orders`, { withCredentials: true });
                 dispatch(setOwnerOrders(result.data?.orders))
-                console.log(result.data);
+                console.log("orders", result.data);
 
             } catch (error) {
 

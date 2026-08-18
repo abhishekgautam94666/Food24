@@ -89,13 +89,13 @@ const Nav = () => {
                             <FaPlus size={20} />
                         </button>  </>)}
 
-                    <div className=' hidden md:flex  items-center gap-2 cursor-pointer relative px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] font-medium'>
+                    <div onClick={() => navigate("/my-orders")} className=' hidden md:flex  items-center gap-2 cursor-pointer relative px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] font-medium'>
                         <CiReceipt size={20} />
-                        <span>My Orders</span>
+                        <span >My Orders</span>
                         <span className='absolute -right-2 -top-2 text-xs font-bold text-white bg-[#ff4d2d] px-1.5 py-0.5 rounded-full'>0</span>
                     </div>
                     <div className=' md:hidden flex  items-center gap-2 cursor-pointer relative px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] font-medium'>
-                        <CiReceipt size={20} />
+                        <CiReceipt onClick={() => navigate("/my-orders")} size={20} />
 
                         <span className='absolute -right-2 -top-2 text-xs font-bold text-white bg-[#ff4d2d] px-1.5 py-0.5 rounded-full'>0</span>
 
@@ -111,7 +111,7 @@ const Nav = () => {
                             <span className='text-[#ff4d2d] absolute left-6 bottom-4'>{cartItems.length}</span>
                         </div>}
 
-                        <button className='hidden md:block bg-[#ff4d2d]/10 text-[#ff4d2d] px-3 py-1 text-sm font-medium rounded-lg'>My orders</button>
+                        <button className='hidden md:block bg-[#ff4d2d]/10 text-[#ff4d2d] px-3 py-1 text-sm font-medium rounded-lg' onClick={() => navigate("/my-orders")}>My orders</button>
                     </>
                 )}
 
@@ -123,9 +123,11 @@ const Nav = () => {
                 </div>
                 {showInfo && <div className='fixed top-20 right-2.5 md:right-[10%] lg:right-[25%] w-45 bg-white shadow-2xl rounded-xl p-5 flex flex-col gap-2.5 z-999'>
                     <div className='text-[17px] font-semibold'></div>
-                    <div className='md:hidden text-[#ff4d2d] font-semibold cursor-pointer'>My orders</div>
+                    <div className='md:hidden text-[#ff4d2d] font-semibold cursor-pointer' onClick={() => navigate("/my-orders")}
+                    >My orders</div>
                     <div className='text-[#ff4d2d] font-semibold cursor-pointer' onClick={handleLogOut}>Log out</div>
                 </div>}
+
 
 
 
