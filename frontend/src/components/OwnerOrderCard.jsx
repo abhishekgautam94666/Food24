@@ -8,14 +8,21 @@ import {
 import { FaPhoneAlt } from "react-icons/fa";
 import { serverUrl } from "../App";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { updateOrderStatus } from "../redux/userSlice";
+import { useState } from "react";
 
 const OwnerOrderCard = ({ order }) => {
-  console.log("ownerorder", order);
+  const dispatch = useDispatch()
+  const [availableBoys, setAvailableBoys] = useState([])
 
   const handleUpdateStatus = async (orderId, shopId, status) => {
     try {
       const result = await axios.post(`${serverUrl}/api/order/update-status/${orderId}/${shopId}`, { status }, { withCredentials: true })
-      console.log(result.data);
+      dispatch(updateOrderStatus({ orderId, shopId, status }))
+      setAvailableBoys(result.data.availableBoys)
+      console.log(result?.data);
+
 
     } catch (error) {
       console.log(error.response?.data);

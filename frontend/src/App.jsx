@@ -21,11 +21,13 @@ import OrderPlaced from "./pages/OrderPlaced";
 import MyOrders from "./pages/MyOrders";
 import useGetMyOrders from "./hooks/useGetMyOrders";
 import useGetOwnerOrders from "./hooks/useGetOwnerOrders";
+import useUpdateLocation from "./hooks/useUpdateLocation";
 
 export const serverUrl = "http://localhost:8000";
 
 function App() {
   useGetCurrentUser()
+  useUpdateLocation()
   useGetCity()
   useGetMyShop()
   useGetItemsByCity()

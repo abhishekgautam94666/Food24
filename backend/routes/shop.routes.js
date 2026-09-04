@@ -1,8 +1,6 @@
 import express from "express";
 
 import isAuth from "../middlewares/isAuth.js";
-
-import getCurrentUser from "../controllers/user.controllers.js";
 import { createEditShop, getShopByCity, getMYShop } from "../controllers/shop.controllers.js";
 import { upload } from "../middlewares/multer.js";
 
