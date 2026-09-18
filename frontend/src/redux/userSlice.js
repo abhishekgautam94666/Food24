@@ -11,7 +11,7 @@ const userSlice = createSlice({
         cartItems: [],
         totalAmount: 0,
         myOrders: [],
-        ownerOrders: null
+        ownerOrders: []
 
 
     },
@@ -83,9 +83,9 @@ const userSlice = createSlice({
         },
         updateOrderStatus: (state, action) => {
             const { orderId, shopId, status } = action.payload
-            const order = state.myOrders.find(o => o._id == orderId)
+            const order = state.ownerOrders.find(o => o._id == orderId)
             if (order) {
-                if (order.shopOrders && order.shopOrders.shop._id == shopId) {
+                if (order.shopOrders && order.shopOrders.shop._id.toString() == shopId.toString()) {
                     order.shopOrders.status = status
                 }
             }

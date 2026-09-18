@@ -121,11 +121,13 @@ const Nav = () => {
                         userData?.fullName ? userData.fullName.charAt(0).toUpperCase() : "U"
                     }
                 </div>
-                {showInfo && <div className='fixed top-20 right-2.5 md:right-[10%] lg:right-[25%] w-45 bg-white shadow-2xl rounded-xl p-5 flex flex-col gap-2.5 z-999'>
+                {showInfo && <div className={`fixed top-20 right-2.5 ${userData.role == "deliveryBoy" ? "md:right-[10%] lg:right-[25%]" : "md:right-[10%] lg:right-[25%]"}  w-45 bg-white shadow-2xl rounded-xl p-5 flex flex-col gap-2.5 z-999`}>
                     <div className='text-[17px] font-semibold'></div>
                     <div className='md:hidden text-[#ff4d2d] font-semibold cursor-pointer' onClick={() => navigate("/my-orders")}
                     >My orders</div>
                     <div className='text-[#ff4d2d] font-semibold cursor-pointer' onClick={handleLogOut}>Log out</div>
+                    <div className='text-[#ff4d2d] font-semibold cursor-pointer'>{userData?.fullName}</div>
+
                 </div>}
 
 

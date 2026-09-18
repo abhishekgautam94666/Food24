@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import axios from "axios"
 import { serverUrl } from "../App"
 import { useSelector } from "react-redux"
-import { latLng } from 'leaflet'
+
 
 
 function useUpdateLocation() {
