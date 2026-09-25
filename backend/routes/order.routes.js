@@ -1,7 +1,7 @@
 import express from "express";
 
 import isAuth from "../middlewares/isAuth.js";
-import { acceptOrder, getDeliveryBoyAssignment, getOwnerOrder, getUserOrders, placeOrder, updateOrderStatus } from "../controllers/order.controllers.js";
+import { acceptOrder, getCurrentOrder, getDeliveryBoyAssignment, getOrderById, getOwnerOrder, getUserOrders, placeOrder, updateOrderStatus } from "../controllers/order.controllers.js";
 
 
 
@@ -13,6 +13,8 @@ orderRouter.get("/owner-orders", isAuth, getOwnerOrder);
 orderRouter.get("/get-assignments", isAuth, getDeliveryBoyAssignment);
 orderRouter.post("/update-status/:orderId/:shopId", isAuth, updateOrderStatus);
 orderRouter.get("/accept-order/:assignmentId", isAuth, acceptOrder);
+orderRouter.get("/get-current-order", isAuth, getCurrentOrder);
+orderRouter.get("/get-order-by-id/:orderId", isAuth, getOrderById);
 
 export default orderRouter;
 

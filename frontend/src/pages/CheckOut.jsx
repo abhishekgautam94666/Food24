@@ -93,7 +93,7 @@ const CheckOut = () => {
         { withCredentials: true }
       )
       toast.success(result.data.message);
-    //  dispatch(addMyOrder(result.data))
+      //  dispatch(addMyOrder(result.data))
       console.log(result);
 
       setTimeout(() => {
@@ -106,7 +106,7 @@ const CheckOut = () => {
       );
 
     } finally {
-      setLoading(false);
+      setLoding(false);
     }
   }
 

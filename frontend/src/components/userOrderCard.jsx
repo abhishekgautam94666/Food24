@@ -1,8 +1,10 @@
 import React from "react";
 import { MdDeliveryDining } from "react-icons/md";
 import { FaMoneyBillWave, FaCalendarAlt } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const UserOrderCard = ({ order }) => {
+    const navigate = useNavigate()
 
     return (
         <div className="bg-white rounded-2xl shadow-md border p-5 hover:shadow-xl transition duration-300">
@@ -103,11 +105,10 @@ const UserOrderCard = ({ order }) => {
             </div>
 
             <div className="mt-4 border-t pt-3 flex justify-between text-lg font-bold">
-                <span>Total Amount</span>
-
-                <span className="text-[#ff4d2d]">
-                    ₹{order.totalAmount}
+                <span>
+                    Total: ₹{order.totalAmount}
                 </span>
+                <button className="bg-[#ff4d2d] hover:bg-[#e64526] text-white px-4 py-2 rounded-lg text-sm" onClick={() => navigate(`/track-order/${order._id}`)}>Track Order</button>
             </div>
         </div>
     );
