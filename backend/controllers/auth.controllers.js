@@ -47,12 +47,19 @@ export const signUp = async (req, res) => {
 export const signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: "User does not exits" });
+    if (!email) {
+      return res.status(400).json({ message: "Enter Email" });
+    }
+    if (!password) {
+      return res.status(400).json({ message: "Enter password" });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "incorrect email" });
+    }
+
+    const isMatch = bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "incorrect Password" });
     }
