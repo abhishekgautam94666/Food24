@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 const UserOrderCard = ({ order }) => {
     const navigate = useNavigate()
+    console.log("order::", order);
 
     return (
         <div className="bg-white rounded-2xl shadow-md border p-5 hover:shadow-xl transition duration-300">
@@ -101,6 +102,10 @@ const UserOrderCard = ({ order }) => {
                     <FaMoneyBillWave />
                     <span className="capitalize">{order.paymentMethod}</span>
                 </div>
+                {
+                    order?.payment == true ? <p className="text-lg font-semibold text-[#ff4d2d]">Paid</p> : <p className="text-lg font-semibold text-[#ff4d2d]">Transaction failed</p>
+                }
+
 
             </div>
 

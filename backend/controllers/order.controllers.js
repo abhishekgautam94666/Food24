@@ -2,12 +2,23 @@ import { DeliveryAssignment } from "../models/deliveryAssignment.model.js"
 import Order from "../models/order.model.js"
 import Shop from "../models/shop.model.js"
 import User from "../models/user.model.js"
+import { sendDeliveryOtpMail } from "../utils/mail.js"
+import Razorpay from "razorpay"
+import crypto from "crypto"
+import dotenv from "dotenv"
+dotenv.config()
+
+const instance = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+
 
 export const placeOrder = async (req, res) => {
     try {
         const { cartItems, paymentMethod, deliveryAddress, totalAmount } = req.body
         if (!cartItems || cartItems.length === 0) {
-            return res.status.json({ message: "Cart is empty" })
+            return res.status(400).json({ message: "Cart is empty" })
         }
         if (
             !deliveryAddress.text ||
@@ -55,14 +66,38 @@ export const placeOrder = async (req, res) => {
             }
         }))
 
+        //Rozarpay
+        if (paymentMethod == "online") {
+            const razorOrder = await instance.orders.create({
+                amount: Math.round(totalAmount) * 100,
+                currency: "INR",
+                receipt: `receipt_${Date.now()}`
+            })
+            const newOrder = await Order.create({
+                user: req.userId,
+                paymentMethod,
+                deliveryAddress,
+                totalAmount,
+                shopOrders,
+                razorpayOrderId: razorOrder.id,
+                payment: false
+            })
+
+            return res.status(200).json({
+                success: true,
+                razorOrder,
+                orderId: newOrder._id,
+                key_id: process.env.RAZORPAY_KEY_ID
+
+            })
+        }
+
         const newOrder = await Order.create({
             user: req.userId,
             paymentMethod,
-            paymentStatus:
-                paymentMethod === "cod" ? "pending" : "paid",
             deliveryAddress,
             totalAmount,
-            shopOrders
+            shopOrders,
         })
         console.log("newOrder", newOrder);
         //newOrder.populate("shopOrders.shopOrderItems.item", "name image price")
@@ -80,6 +115,75 @@ export const placeOrder = async (req, res) => {
             success: false,
             message: "Unable to place order. Please try again.",
         });
+    }
+}
+
+export const verifyPayment = async (req, res) => {
+
+
+    try {
+        const {
+            razorpay_payment_id,
+            razorpay_order_id,
+            razorpay_signature,
+            orderId
+        } = req.body
+
+        if (
+            !razorpay_payment_id ||
+            !razorpay_order_id ||
+            !razorpay_signature ||
+            !orderId
+        ) {
+            return res.status(400).json({
+                message: "Payment details are missing"
+            })
+        }
+
+        const payment = await instance.payments.fetch(razorpay_payment_id)
+
+        if (!payment || payment.status !== "captured") {
+            return res.status(400).json({
+                message: "payment not captured"
+            })
+        }
+
+        // 3. Razorpay signature verify
+        const generatedSignature = crypto
+            .createHmac(
+                "sha256",
+                process.env.RAZORPAY_KEY_SECRET
+            )
+            .update(
+                `${razorpay_order_id}|${razorpay_payment_id}`
+            )
+            .digest("hex");
+
+        if (generatedSignature !== razorpay_signature) {
+            return res.status(400).json({
+                message: "Invalid payment signature"
+            });
+        }
+
+
+        const order = await Order.findById(orderId)
+
+        if (!order) {
+            return res.status(404).json({
+                message: "Order not found"
+            })
+        }
+        order.payment = true;
+        order.razorpayPaymentId = razorpay_payment_id;
+        await order.save()
+
+        return res.status(200).json({
+            success: true,
+            message: "Payment verify Successfully",
+            order
+        })
+    } catch (error) {
+        return res.status(500).json({ success: false, message: `verify payment error ${error.message}` })
     }
 }
 
@@ -393,5 +497,74 @@ export const getOrderById = async (req, res) => {
         return res.status(200).json(order)
     } catch (error) {
         return res.status(500).json({ message: `get by id order error ${error}` })
+    }
+}
+
+
+export const sendDeliveryOtp = async (req, res) => {
+    try {
+        const { orderId, shopOrderId } = req.body
+        const order = await Order.findById(orderId).populate("user")
+        if (!order) {
+            return res.status(400).json({
+                message: "Invalid orderId"
+            });
+        }
+
+        const shopOrder = order.shopOrders.id(shopOrderId)
+
+        if (!shopOrder) {
+            return res.status(400).json({
+                message: "Invalid shopOrderId"
+            });
+        }
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        shopOrder.deliveryOtp = otp
+        shopOrder.otpExpires = Date.now() + 5 * 60 * 1000
+        await order.save();
+        await sendDeliveryOtpMail(order.user, otp);;
+        return res.status(200).json({ message: `Otp sent Successfuly to ${order?.user?.fullName}` })
+    } catch (error) {
+        return res.status(500).json({ message: `delivery otp error ${error}` })
+    }
+}
+
+export const verifyDeliveryOtp = async (req, res) => {
+    try {
+        const { orderId, shopOrderId, otp } = req.body
+        const order = await Order.findById(orderId).populate("user")
+        if (!order) {
+            return res.status(400).json({
+                message: "Invalid orderId"
+            });
+        }
+        const shopOrder = order.shopOrders.id(shopOrderId)
+        if (!shopOrder) {
+            return res.status(400).json({
+                message: "Invalid shopOrderId"
+            });
+        }
+        if (shopOrder.deliveryOtp !== otp || !shopOrder.otpExpires || shopOrder.otpExpires < Date.now()) {
+            return res.status(400).json({ message: "Invalid/Expired Otp" })
+        }
+        shopOrder.status = "delivered"
+        shopOrder.deliveredAt = Date.now()
+
+        // OTP clear
+        shopOrder.deliveryOtp = null;
+        shopOrder.otpExpires = null;
+
+
+        await order.save();
+        await DeliveryAssignment.deleteOne({
+            shopOrderId: shopOrder._id,
+            order: orderId,
+            assignedTo: shopOrder.assignedDeliveryBoy
+        })
+
+        return res.status(200).json({ message: "Order Deliver Successfuly" })
+    } catch (error) {
+        return res.status(500).json({ message: `delivery otp error ${error}` })
     }
 }

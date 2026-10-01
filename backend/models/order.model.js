@@ -46,6 +46,22 @@ const shopOrderSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
 
+    },
+    deliveryOtp: {
+        type: String,
+        default: null
+    },
+    isOtpVerified: {
+        type: Boolean,
+        default: false,
+    },
+    otpExpires: {
+        type: Date,
+        default: null
+    },
+    deliveredAt: {
+        type: Date,
+        default: null
     }
 })
 
@@ -67,7 +83,19 @@ const orderSchema = new mongoose.Schema({
     totalAmount: {
         type: Number
     },
-    shopOrders: [shopOrderSchema]
+    shopOrders: [shopOrderSchema],
+    payment: {
+        type: Boolean,
+        default: false
+    },
+    razorpayOrderId: {
+        type: String,
+        default: ""
+    },
+    razorpayPaymentId: {
+        type: String,
+        default: ""
+    }
 }, { timestamps: true })
 
 const Order = mongoose.model("Order", orderSchema);

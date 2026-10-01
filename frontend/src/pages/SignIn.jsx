@@ -21,16 +21,7 @@ export const SignIn = () => {
   const dispatch = useDispatch()
 
   const handleSignIn = async (e) => {
-    e.preventDefault();
-
-    // if (!email.trim()) {
-    //   toast.error('Please enter your email');
-    //   return;
-    // }
-    // if (!password) {
-    //   toast.error("Please enter your password")
-    // }
-
+    e.preventDefault();    
     try {
       setLoading(true);
 
@@ -151,9 +142,16 @@ export const SignIn = () => {
 
         </form>
 
-        <button className="w-full mt-4 flex items-center justify-center gap-2 border py-2.5 rounded-lg">
+        <button
+          type="button"
+          disabled={loading}
+          className="w-full mt-4 flex items-center justify-center gap-2 border py-2.5 rounded-lg"
+          onClick={() => {
+            window.location.href = `${serverUrl}/api/auth/google`;
+          }}
+        >
           <FcGoogle />
-          <span> Sign In with google</span>
+          <span>Sign in with Google</span>
         </button>
 
         {/* Login Link */}

@@ -6,6 +6,7 @@ import axios from "axios";
 import { serverUrl } from "../App";
 import { useDispatch } from "react-redux";
 import { setUserData } from "../redux/userSlice";
+import toast from "react-hot-toast";
 
 
 export const SignUp = () => {
@@ -20,13 +21,73 @@ export const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mobile, setMobile] = useState("");
-  const [loding, setLoding] = useState(true);
+  const [loding, setLoding] = useState(false);
   const [err, setErr] = useState("");
   const dispatch = useDispatch()
 
   const handleSignUp = async (e) => {
     e.preventDefault();
+
+    const cleanFullName = fullName.trim();
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanMobile = mobile.trim();
+
+    // Full Name validation
+    if (!cleanFullName) {
+      toast.error("Please enter your full name");
+      return;
+    }
+
+    if (cleanFullName.length < 3) {
+      toast.error("Name must be at least 3 characters");
+      return;
+    }
+
+    // Email validation
+    if (!cleanEmail) {
+      toast.error("Please enter your email");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(cleanEmail)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    // Mobile validation
+    if (!cleanMobile) {
+      toast.error("Please enter your mobile number");
+      return;
+    }
+
+    const mobileRegex = /^[6-9]\d{9}$/;
+
+    if (!mobileRegex.test(cleanMobile)) {
+      toast.error("Please enter a valid 10-digit mobile number");
+      return;
+    }
+
+    if (!password) {
+      toast.error("Please enter your password");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    // Role validation
+    if (!role) {
+      toast.error("Please select a role");
+      return;
+    }
+
+
     try {
+      setLoding(true)
       const result = await axios.post(
         `${serverUrl}/api/auth/signup`,
         {
@@ -39,10 +100,28 @@ export const SignUp = () => {
         { withCredentials: true },
       );
       dispatch(setUserData(result.data))
-      console.log(result);
-      navigate("/signin");
+      toast.success("Account created successfully");
+      // Clear form
+      setFullName("");
+      setEmail("");
+      setPassword("");
+      setMobile("");
+      setRole("user");
+
+      //Navigate to signin
+      setTimeout(() => {
+        navigate("/signin");
+      }, 800)
+
+
+
     } catch (error) {
       console.log("error :", error.response?.data);
+      toast.error(
+        error?.response?.data?.message || "Unable to create account. Please try again."
+      )
+    } finally {
+      setLoding(false);
     }
   };
 
@@ -60,7 +139,7 @@ export const SignUp = () => {
           </p>
         </div>
 
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSignUp}>
           {/* Full Name */}
           <div>
             <label className="block text-gray-700 font-medium mb-1">
@@ -68,12 +147,14 @@ export const SignUp = () => {
             </label>
             <input
               type="text"
+              autoComplete="name"
               placeholder="Enter your Full Name"
               className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm
           focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400
           transition duration-200"
               onChange={(e) => setFullName(e.target.value)}
               value={fullName}
+              disabled={loding}
             />
           </div>
           {/* Email */}
@@ -84,11 +165,13 @@ export const SignUp = () => {
             <input
               type="email"
               placeholder="Enter your email"
+              autoComplete="email"
               className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm
           focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400
           transition duration-200"
               onChange={(e) => setEmail(e.target.value)}
               value={email}
+              disabled={loding}
             />
           </div>
           {/* Mobile */}
@@ -97,13 +180,17 @@ export const SignUp = () => {
               Mobile Number
             </label>
             <input
-              type="text"
+              type="tel"
+              autoComplete="tel"
               placeholder="Enter your mobile number"
+              inputMode="numeric"
+              maxLength={10}
               className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm
           focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400
           transition duration-200"
               onChange={(e) => setMobile(e.target.value)}
               value={mobile}
+              disabled={loding}
             />
           </div>
           {/* password*/}
@@ -115,11 +202,13 @@ export const SignUp = () => {
             <input
               type={show ? "text" : "password"}
               placeholder="Enter your password"
+              autoComplete="new-password"
               className="w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 text-sm
     focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400
     transition duration-200"
               onChange={(e) => setPassword(e.target.value)}
               value={password}
+              disabled={loding}
             />
 
             <button
@@ -143,10 +232,12 @@ export const SignUp = () => {
                 <button
                   key={r}
                   type="button"
+                  disabled={loding}
                   onClick={() => setRole(r)}
-                  className={`outline-1 flex-1 rounded-md px-3 py-2 text-center font-medium transition-all duration-200 ${role === r ? "bg-orange-500 text-white border-orange-50:b" : "bg-white text-gray-700 border-gray-300 hover:bg-orange-50"}`}
+                  className={`outline-1 flex-1 rounded-md px-3 py-2 text-center font-medium transition-all duration-200 ${role === r ? "bg-orange-500 text-white border-orange-50:b" : "bg-white text-gray-700 border-gray-300 hover:bg-orange-50"} ${loding ? "cursor-not-allowed opacity-60"
+                    : "cursor-pointer"}`}
                 >
-                  {r}
+                  {r === "deliveryBoy" ? "Delivery Boy" : r}
                 </button>
               ))}
             </div>
@@ -155,14 +246,17 @@ export const SignUp = () => {
           {/* Button */}
           <button
             type="submit"
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2.5 rounded-lg transition duration-300 shadow-md hover:shadow-lg"
-            onClick={handleSignUp}
+            disabled={loding}
+            className={`w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2.5 rounded-lg transition duration-300 shadow-md hover:shadow-lg ${loding
+              ? "bg-orange-300 cursor-not-allowed"
+              : "bg-orange-500 hover:bg-orange-600 cursor-pointer hover:shadow-lg"}`}
           >
-            Sign Up
+            {loding ? "Creating Account..." : "sign Up"}
           </button>
         </form>
         <button
           type="button"
+          disabled={loding}
           className="w-full mt-4 flex items-center justify-center gap-2 border py-2.5 rounded-lg"
           onClick={() => {
             window.location.href = `${serverUrl}/api/auth/google`;

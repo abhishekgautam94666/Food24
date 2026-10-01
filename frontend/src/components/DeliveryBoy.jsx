@@ -4,15 +4,21 @@ import { useSelector } from 'react-redux'
 import { serverUrl } from '../App'
 import { useEffect } from 'react'
 import axios from 'axios'
+import toast from "react-hot-toast";
 import DeliveryBoyTracking from './DeliveryBoyTracking'
+import { useNavigate } from 'react-router-dom'
 
 const DeliveryBoy = () => {
   const { userData } = useSelector(state => state.user)
   const [availableAssignments, setAvailableAssignments] = useState([])
   const [currentOrder, setCurrentOrder] = useState()
   const [showOtpBox, setShowOtpBox] = useState(false)
+  const [otp, setOtp] = useState("")
+  const [loading, setLoading] = useState(false);
+  const [verifyLoading, setVerifyLoading] = useState(false);
 
 
+  const navigate = useNavigate()
   const getAssignments = async () => {
     try {
       const result = await axios.get(`${serverUrl}/api/order/get-assignments`, { withCredentials: true })
@@ -45,10 +51,70 @@ const DeliveryBoy = () => {
     }
   }
 
-  const handlesendOtp = (e) => {
-    setShowOtpBox(true)
+  const sendOtp = async () => {
+    if (!currentOrder?._id || !currentOrder?.shopOrder?._id) {
+      toast.error("Current order details not found");
+      return;
+    }
+    try {
+      45
+      setLoading(true);
+      const result = await axios.post(`${serverUrl}/api/order/send-delivery-otp`, { orderId: currentOrder._id, shopOrderId: currentOrder.shopOrder._id }, { withCredentials: true });
+      toast.success(
+        result.data.message || "OTP sent successfully"
+      );
+      setOtp("")
+      setShowOtpBox(true)
+
+    } catch (error) {
+      console.error("Send OTP error:", error);
+      toast.error(
+        error?.response?.data?.message ||
+        "Unable to send OTP. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
+  const verifyOtp = async () => {
+    if (!otp) {
+      console.log("Please enter OTP");
+      return;
+    }
+    if (otp.length !== 6) {
+      toast.error("OTP must be 6 digits");
+      return;
+    }
+    if (!currentOrder?._id || !currentOrder?.shopOrder?._id) {
+      toast.error("Current order details not found");
+      return;
+    }
+    try {
+      setVerifyLoading(true);
+      const result = await axios.post(`${serverUrl}/api/order/verify-otp`, { orderId: currentOrder._id, shopOrderId: currentOrder.shopOrder._id, otp }, { withCredentials: true })
+      console.log("verifyOtp :", result);
+      toast.success(
+        result.data.message || "Order delivered successfully"
+      );
+      // Reset OTP UI
+      setOtp("");
+      setShowOtpBox(false);
+      // Refresh order data
+      getCurrentOrder();
+      getAssignments();
+
+    } catch (error) {
+      console.error("Verify OTP error:", error);
+
+      toast.error(
+        error?.response?.data?.message ||
+        "Invalid or expired OTP"
+      );
+    } finally {
+      setVerifyLoading(false);
+    }
+  }
 
   useEffect(() => {
     getAssignments()
@@ -95,12 +161,12 @@ const DeliveryBoy = () => {
             <p className='text-xs text-gray-400'>{currentOrder.shopOrder.shopOrderItems.length} items | {currentOrder.shopOrder.subtotal}</p>
           </div>
           <DeliveryBoyTracking data={currentOrder} />
-          {!showOtpBox ? <button className='mt-4 w-full bg-green-500 text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:bg-green-600 active:scale-95 transition-all duration-200' onClick={handlesendOtp}>
-            Mark as Delivered
+          {!showOtpBox ? <button className='mt-4 w-full bg-green-500 text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:bg-green-600 active:scale-95 transition-all duration-200' disabled={loading} onClick={sendOtp}>
+            {loading ? "Sending OTP..." : "Mark as Delivered"}
           </button> : <div className='mt-4 p-4 border rounded-b-xl bg-gray-50'>
             <p className='text-sm font-semibold mb-2'>Enter Otp send to <span className='text-orange-500'>{currentOrder.user.fullName}</span></p>
-            <input type="text" className='w-full border px-3 py-2 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-orange-400' />
-            <button className='w-full bg-orange-500 text-white py-2 rounded-lg font-semibold hover:bg-orange-600 transition-all'>Submit OTP</button>
+            <input type="text" inputMode="numeric" maxLength={6} className='w-full border px-3 py-2 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-orange-400' placeholder='Enter OTP' onChange={(e) => setOtp(e.target.value)} value={otp} />
+            <button className='w-full bg-orange-500 text-white py-2 rounded-lg font-semibold hover:bg-orange-600 transition-all' onClick={verifyOtp}> {verifyLoading ? "Verifying..." : "Submit OTP"}</button>
           </div>}
         </div>}
 

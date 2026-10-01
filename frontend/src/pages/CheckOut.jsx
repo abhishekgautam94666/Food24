@@ -13,7 +13,7 @@ import { MdDeliveryDining } from "react-icons/md";
 import axios from 'axios';
 import { serverUrl } from '../App'
 import toast from 'react-hot-toast';
-import { addMyOrder } from '../redux/userSlice';
+
 
 function RecenterMap({ location }) {
   if (location.lat && location.lon) {
@@ -76,6 +76,48 @@ const CheckOut = () => {
     }
   }
 
+  const openRazorpay = (orderId, razorOrder) => {
+
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: razorOrder.amount,
+      currency: 'INR',
+      name: "Food24",
+      description: "Food Delivery website",
+      order_id: razorOrder.id,
+      handler: async function (response) {
+        console.log("Razorpay response:", response)
+
+        try {
+          const result = await axios.post(`${serverUrl}/api/order/verify-payment`, {
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_signature: response.razorpay_signature,
+            orderId
+          }, { withCredentials: true })
+          console.log("VERIFY RESULT:", result.data)
+
+          toast.success("Payment successful")
+          navigate("/order-placed")
+
+        } catch (error) {
+          console.log("STATUS:", error.response?.status)
+          console.log("DATA:", error.response?.data)
+          console.log("ERROR:", error)
+
+          toast.error(
+            error.response?.data?.message || "Payment verification failed"
+          )
+
+        }
+      }
+
+    }
+
+    const rzp = new window.Razorpay(options)
+    rzp.open()
+  }
+
 
   const handlePlaceOrder = async () => {
     setLoding(true)
@@ -92,14 +134,27 @@ const CheckOut = () => {
       },
         { withCredentials: true }
       )
-      toast.success(result.data.message);
-      //  dispatch(addMyOrder(result.data))
-      console.log(result);
 
-      setTimeout(() => {
-        navigate("/order-placed");
-      }, 1500);
+      console.log("result:", result);
+
+      if (paymentMethod == "cod") {
+        toast.success(result.data.message);
+        // dispatch(addMyOrder(result.data))
+        console.log(result);
+
+        setTimeout(() => {
+          navigate("/order-placed");
+        }, 1000);
+      } else {
+        const orderId = result.data.orderId
+        const razorOrder = result.data.razorOrder
+        openRazorpay(orderId, razorOrder)
+      }
+
+
     } catch (error) {
+      console.log("net:", error);
+
       setLoding(false)
       toast.error(
         error.response?.data?.message || "Something went wrong"
