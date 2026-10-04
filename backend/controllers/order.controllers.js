@@ -99,8 +99,33 @@ export const placeOrder = async (req, res) => {
             totalAmount,
             shopOrders,
         })
-        console.log("newOrder", newOrder);
-        //newOrder.populate("shopOrders.shopOrderItems.item", "name image price")
+        await newOrder.populate("shopOrders.shopOrderItems.item", "name image price quantity")
+        await newOrder.populate("shopOrders.shop", "name")
+        await newOrder.populate("shopOrders.owner", "fullName socketId")
+        await newOrder.populate("user", "fullName email mobile")
+
+
+        // socketIO
+        const io = req.app.get('io')
+        if (io) {
+            newOrder.shopOrders.forEach(shopOrder => {
+                const ownerSocketId = shopOrder.owner?.socketId
+
+                console.log("OWNER ID:", shopOrder.owner?._id)
+                console.log("OWNER SOCKET ID:", ownerSocketId)
+                if (ownerSocketId) {
+                    io.to(ownerSocketId).emit('newOrder', {
+                        _id: newOrder._id,
+                        paymentMethod: newOrder.paymentMethod,
+                        user: newOrder.user,
+                        shopOrders: shopOrder,
+                        createdAt: newOrder.createdAt,
+                        deliveryAddress: newOrder.deliveryAddress,
+                    })
+                }
+
+            })
+        }
 
         return res.status(201).json({
             success: true,
@@ -177,6 +202,35 @@ export const verifyPayment = async (req, res) => {
         order.razorpayPaymentId = razorpay_payment_id;
         await order.save()
 
+
+        await order.populate("shopOrders.shopOrderItems.item", "name image price quantity")
+        await order.populate("shopOrders.shop", "name")
+        await order.populate("shopOrders.owner", "fullName socketId")
+        await order.populate("user", "fullName email mobile")
+
+
+        // socketIO
+        const io = req.app.get('io')
+        if (io) {
+            order.shopOrders.forEach(shopOrder => {
+                const ownerSocketId = shopOrder.owner?.socketId
+
+                console.log("OWNER ID:", shopOrder.owner?._id)
+                console.log("OWNER SOCKET ID:", ownerSocketId)
+                if (ownerSocketId) {
+                    io.to(ownerSocketId).emit('newOrder', {
+                        _id: order._id,
+                        paymentMethod: order.paymentMethod,
+                        user: order.user,
+                        shopOrders: shopOrder,
+                        createdAt: order.createdAt,
+                        deliveryAddress: order.deliveryAddress,
+                    })
+                }
+
+            })
+        }
+
         return res.status(200).json({
             success: true,
             message: "Payment verify Successfully",
@@ -206,7 +260,7 @@ export const getOwnerOrder = async (req, res) => {
         const filtereOrder = orders.map((order) => ({
             _id: order._id,
             paymentMethod: order.paymentMethod,
-            Status: order.shopOrders.Status,
+            //Status: order.shopOrders.Status,
             user: order.user,
             shopOrders: order.shopOrders.find(o => o.owner._id.toString() == req.userId.toString()),
             createdAt: order.createdAt,

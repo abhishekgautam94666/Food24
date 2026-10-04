@@ -4,7 +4,7 @@ import { SignUp } from "./pages/SignUp";
 import { SignIn } from "./pages/SignIn";
 import ForgotPassword from "./pages/ForgotPassword";
 import useGetCurrentUser from "./hooks/useGetCurrentUser";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Home from "./pages/Home";
 import useGetCity from "./hooks/useGetCity";
 import OwnerDashboard from "./components/OwnerDashboard";
@@ -23,6 +23,9 @@ import useGetOwnerOrders from "./hooks/useGetOwnerOrders";
 import useUpdateLocation from "./hooks/useUpdateLocation";
 import TrackOrderPage from "./pages/TrackOrderPage";
 import Shop from "./pages/Shop";
+import { useEffect } from "react";
+import { io } from 'socket.io-client'
+import { setSocket } from "./redux/userSlice";
 
 export const serverUrl = "http://localhost:8000";
 
@@ -32,9 +35,28 @@ function App() {
   useGetCity()
   useGetMyShop()
   useGetItemsByCity()
-  useGetMyOrders()
+ // useGetMyOrders()
   useGetOwnerOrders()
   const { userData } = useSelector(state => state.user)
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    const socketInstance = io(serverUrl, { withCredentials: true })
+
+    dispatch(setSocket(socketInstance))
+
+    socketInstance.on('connect', () => {
+      if (userData) {
+        socketInstance.emit('identity', { userId: userData._id })
+
+      }
+    })
+
+    return () => {
+      socketInstance.disconnect();
+    };
+  }, [userData?._id])
+
   return (
     <>
 

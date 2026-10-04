@@ -11,7 +11,8 @@ const userSlice = createSlice({
         cartItems: [],
         totalAmount: 0,
         myOrders: [],
-        ownerOrders: []
+        ownerOrders: [],
+        socket: null
 
 
     },
@@ -89,11 +90,14 @@ const userSlice = createSlice({
                     order.shopOrders.status = status
                 }
             }
+        },
+        setSocket: (state, action) => {
+            state.socket = action.payload
         }
     }
 })
 
-export const { setOwnerOrders, addMyOrder, setMyOrders, increaseQuantity, decreaseQuantity, addToCart, updateOrderStatus, setUserData, setCurrentCity, setCurrentState, setCurrentAddress, setItemsInMyCity
+export const { setSocket, setOwnerOrders, addMyOrder, setMyOrders, increaseQuantity, decreaseQuantity, addToCart, updateOrderStatus, setUserData, setCurrentCity, setCurrentState, setCurrentAddress, setItemsInMyCity
 
 } = userSlice.actions
 export default userSlice.reducer

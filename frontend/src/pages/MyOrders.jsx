@@ -1,19 +1,33 @@
 import React from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import UserOrderCard from "../components/UserOrderCard";
 import useGetMyOrders from "../hooks/useGetMyOrders";
 import OwnerOrderCard from "../components/OwnerOrderCard";
 import useGetOwnerOrders from "../hooks/useGetOwnerOrders";
+import { useEffect } from "react";
+import { setOwnerOrders } from "../redux/userSlice";
 
 
 const MyOrders = () => {
   useGetMyOrders();
   useGetOwnerOrders()
 
+  const { userData, myOrders, ownerOrders, socket } = useSelector((state) => state.user);
+  const dispatch = useDispatch()
+  console.log("socket", socket)
 
-  const { userData, myOrders, ownerOrders } = useSelector((state) => state.user);
-  console.log("userData", userData);
-  console.log("ownerOrders", ownerOrders);
+  useEffect(() => {
+
+    socket?.on('newOrder', (data) => {
+      console.log("new datra", data);
+      if (data.shopOrders?.owner?._id == userData._id) {
+        dispatch(setOwnerOrders([data, ...ownerOrders]))
+      }
+    })
+    return () => {
+      socket?.off('newOrder')
+    }
+  }, [socket, dispatch])
 
 
 
