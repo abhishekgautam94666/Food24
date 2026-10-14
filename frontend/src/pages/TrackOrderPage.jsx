@@ -6,11 +6,16 @@ import axios from 'axios';
 import { useState } from 'react';
 import { IoIosArrowRoundBack } from "react-icons/io";
 import DeliveryBoyTracking from '../components/DeliveryBoyTracking';
+import { useSelector } from 'react-redux';
 
 const TrackOrderPage = () => {
   const { orderId } = useParams();
   const [currentOrder, setCurrentOrder] = useState();
   const navigate = useNavigate()
+  const { socket } = useSelector(state => state.user)
+  const [liveLocation, setLiveLocation] = useState({})
+  console.log("currentOrder", currentOrder);
+
 
   const handleGetOrder = async () => {
     try {
@@ -22,6 +27,50 @@ const TrackOrderPage = () => {
       console.log(error);
     }
   }
+
+  useEffect(() => {
+    if (!socket) {
+      console.log("CUSTOMER SOCKET NOT AVAILABLE");
+      return;
+    }
+    console.log("CUSTOMER SOCKET CONNECTED:", socket.connected);
+
+    socket.on('updateDeliveryLocation', ({ deliveryBoyId, latitude, longitude }) => {
+      console.log(
+        "🔥 CUSTOMER RECEIVED LOCATION:",
+        deliveryBoyId,
+        latitude,
+        longitude
+      );
+      setLiveLocation(prev => ({
+        ...prev,
+        [deliveryBoyId]: { lat: Number(latitude), lon: Number(longitude) }
+      }))
+    })
+
+    //order deliver hone ke event 
+    socket.on("orderDelivered", ({ orderId, shopOrderId }) => {
+      console.log(
+        "CUSTOMER RECEIVED ORDER DELIVERED:",
+        orderId,
+        shopOrderId
+      );
+
+      if (orderId === currentOrder?._id) {
+        setCurrentOrder(prev => ({
+          ...prev,
+
+          shopOrders: prev.shopOrders.map(shopOrder => shopOrder._id === shopOrderId ? { ...shopOrder, status: "delivered" } : shopOrder)
+        }))
+      }
+    })
+
+    return () => {
+      socket.off("updateDeliveryLocation")
+      socket.off("orderDelivered");
+    }
+  }, [socket, currentOrder?._id])
+
   useEffect(() => {
     handleGetOrder()
   }, [orderId])
@@ -55,7 +104,7 @@ const TrackOrderPage = () => {
           {shopOrder.assignedDeliveryBoy && shopOrder.status !== "delivered" && < div className='h-100 w-full rounded-2xl overflow-hidden shadow-md'>
             <DeliveryBoyTracking data={
               {
-                deliveryBoyLocation: {
+                deliveryBoyLocation: liveLocation[shopOrder.assignedDeliveryBoy._id] || {
                   lat: shopOrder.assignedDeliveryBoy.location.coordinates[1],
                   lon: shopOrder.assignedDeliveryBoy.location.coordinates[0]
                 },

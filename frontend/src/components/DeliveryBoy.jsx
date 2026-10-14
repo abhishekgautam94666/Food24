@@ -6,19 +6,79 @@ import { useEffect } from 'react'
 import axios from 'axios'
 import toast from "react-hot-toast";
 import DeliveryBoyTracking from './DeliveryBoyTracking'
+import { BarChart, CartesianGrid, ResponsiveContainer, XAxis } from "recharts";
 import { useNavigate } from 'react-router-dom'
 
 const DeliveryBoy = () => {
-  const { userData } = useSelector(state => state.user)
+  const { userData, socket } = useSelector(state => state.user)
   const [availableAssignments, setAvailableAssignments] = useState([])
   const [currentOrder, setCurrentOrder] = useState()
   const [showOtpBox, setShowOtpBox] = useState(false)
   const [otp, setOtp] = useState("")
   const [loading, setLoading] = useState(false);
   const [verifyLoading, setVerifyLoading] = useState(false);
+  const [liveLocation, setLiveLocation] = useState(null)
+  const [todayDeliveries, setTodayDeliveries] = useState([])
 
-
+  //remove
   const navigate = useNavigate()
+
+  useEffect(() => {
+
+    if (!socket || userData?.role !== "deliveryBoy") return;
+
+    let watchId;
+
+    if (navigator.geolocation) {
+      watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          const latitude = position.coords.latitude;
+          const longitude = position.coords.longitude;
+          console.log("SENDING LOCATION:", latitude, longitude);
+
+          // 1. Apne map ko turant update karo
+          setLiveLocation({
+            lat: latitude,
+            lon: longitude
+          });
+          //remove
+
+          socket.emit("updateLocation", {
+            latitude,
+            longitude,
+            userId: userData._id
+          });
+        },
+
+        (error) => {
+          console.log("Location error:", error);
+        },
+        {
+          enableHighAccuracy: true,
+        }
+      );
+    }
+
+    return () => {
+      if (watchId) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+    };
+  }, [socket, userData]);
+
+  const handleTodayDeliveries = async () => {
+
+    try {
+
+      const result = await axios.get(`${serverUrl}/api/order/get-today-deliveries`, { withCredentials: true })
+      console.log("result data", result.data);
+      setTodayDeliveries(result.data)
+
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   const getAssignments = async () => {
     try {
       const result = await axios.get(`${serverUrl}/api/order/get-assignments`, { withCredentials: true })
@@ -97,11 +157,13 @@ const DeliveryBoy = () => {
       toast.success(
         result.data.message || "Order delivered successfully"
       );
-      // Reset OTP UI
       setOtp("");
       setShowOtpBox(false);
-      // Refresh order data
-      getCurrentOrder();
+      socket.emit("orderDelivered", {
+        orderId: currentOrder._id,
+        shopOrderId: currentOrder.shopOrder._id
+      })
+      setCurrentOrder(null);
       getAssignments();
 
     } catch (error) {
@@ -117,8 +179,20 @@ const DeliveryBoy = () => {
   }
 
   useEffect(() => {
+    socket.on('newAssignment', (data) => {
+      if (data.sentTo == userData._id) {
+        setAvailableAssignments(prev => [...prev, data])
+      }
+    })
+    return () => {
+      socket.off('newAssignment')
+    }
+  }, [socket])
+
+  useEffect(() => {
     getAssignments()
     getCurrentOrder()
+    handleTodayDeliveries()
   }, [userData])
 
   return (
@@ -153,6 +227,18 @@ const DeliveryBoy = () => {
 
           </div>}
 
+        <div className='w-[90%] bg-white rounded-2xl shadow-md p-5 mb-6 border border-orange-100'>
+          <h1 className='text-lg font-bold mb-3 text-[#ff4d2d]'>Today Deliveries</h1>
+
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={todayDeliveries} >
+              <CartesianGrid strokeDasharray='3 3' />
+              <XAxis dataKey="hour" tickFormatter={(h)=>`${h}`}/>
+            </BarChart>
+          </ResponsiveContainer>
+
+        </div>
+
         {currentOrder && <div className='bg-white rounded-2xl p-5 shadow-md w-[90%] border border-orange-100'>
           <h2 className='text-lg font-bold mb-3'>Current Order</h2>
           <div className='border rounded-lg p-4 mb-3'>
@@ -160,7 +246,20 @@ const DeliveryBoy = () => {
             <p className='text-sm text-gray-500'>{currentOrder.deliveryAddress.text}</p>
             <p className='text-xs text-gray-400'>{currentOrder.shopOrder.shopOrderItems.length} items | {currentOrder.shopOrder.subtotal}</p>
           </div>
-          <DeliveryBoyTracking data={currentOrder} />
+          <DeliveryBoyTracking data={{
+            ...currentOrder,
+            deliveryBoyLocation:
+              liveLocation || {
+                lat: currentOrder?.shopOrder?.assignedDeliveryBoy?.location?.coordinates?.[1],
+                lon: currentOrder?.shopOrder?.assignedDeliveryBoy?.location?.coordinates?.[0]
+              },
+
+            customerLocation: {
+              lat: currentOrder?.deliveryAddress?.latitude,
+              lon: currentOrder?.deliveryAddress?.longitude
+            }
+          }} />
+
           {!showOtpBox ? <button className='mt-4 w-full bg-green-500 text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:bg-green-600 active:scale-95 transition-all duration-200' disabled={loading} onClick={sendOtp}>
             {loading ? "Sending OTP..." : "Mark as Delivered"}
           </button> : <div className='mt-4 p-4 border rounded-b-xl bg-gray-50'>

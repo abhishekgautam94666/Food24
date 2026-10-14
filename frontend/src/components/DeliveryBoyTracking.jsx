@@ -23,21 +23,21 @@ const DeliveryBoyTracking = ({ data }) => {
     const customerlon = data.customerLocation.lon
     const customerlat = data.customerLocation.lat
 
-    const path = [
-        [deliveryBoyLat, deliveryBoyLon],
-        [customerlat, customerlon]
-    ]
+    // const path = [
+    //     [deliveryBoyLat, deliveryBoyLon],
+    //     [customerlat, customerlon]
+    // ]
     const center = [deliveryBoyLat, deliveryBoyLon]
 
 
     const [route, setRoute] = useState([]);
-    useEffect(() => {
 
+    useEffect(() => {
         if (
-            !deliveryBoyLat ||
-            !deliveryBoyLon ||
-            !customerlat ||
-            !customerlon
+            deliveryBoyLat == null ||
+            deliveryBoyLon == null ||
+            customerlat == null ||
+            customerlon == null
         ) {
             return;
         }
@@ -73,10 +73,10 @@ const DeliveryBoyTracking = ({ data }) => {
     }, [deliveryBoyLat, deliveryBoyLon, customerlat, customerlon])
 
     if (
-        !deliveryBoyLat ||
-        !deliveryBoyLon ||
-        !customerlat ||
-        !customerlon
+        deliveryBoyLat == null ||
+        deliveryBoyLon == null ||
+        customerlat == null ||
+        customerlon == null
     ) {
         return <p>Location not available</p>;
     }
@@ -88,10 +88,12 @@ const DeliveryBoyTracking = ({ data }) => {
     return (
         <div className='w-full h-100 mt-3 rounded-b-xl overflow-hidden shadow-md'>
             <MapContainer className={"w-full h-full"} center={center} zoom={15}>
+
                 <TileLayer
                     attribution='&copy; OpenStreetMap contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
+
                 <Marker position={[deliveryBoyLat, deliveryBoyLon]} icon={deliveryBoyIcon}>
                     <Popup>Delivery Boy</Popup>
                 </Marker>

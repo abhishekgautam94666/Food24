@@ -5,14 +5,17 @@ import useGetMyOrders from "../hooks/useGetMyOrders";
 import OwnerOrderCard from "../components/OwnerOrderCard";
 import useGetOwnerOrders from "../hooks/useGetOwnerOrders";
 import { useEffect } from "react";
-import { setOwnerOrders } from "../redux/userSlice";
+import { setOwnerOrders, updateRealtimeOrderStatus } from "../redux/userSlice";
+
 
 
 const MyOrders = () => {
   useGetMyOrders();
   useGetOwnerOrders()
 
+
   const { userData, myOrders, ownerOrders, socket } = useSelector((state) => state.user);
+  console.log('myorder', myOrders);
   const dispatch = useDispatch()
   console.log("socket", socket)
 
@@ -24,8 +27,17 @@ const MyOrders = () => {
         dispatch(setOwnerOrders([data, ...ownerOrders]))
       }
     })
+
+
+    socket?.on('update-status', ({ orderId, shopId, status, userId }) => {
+      if (userId?.toString() === userData?._id?.toString()) {
+        dispatch(updateRealtimeOrderStatus({ orderId, shopId, status }))
+      }
+    })
+
     return () => {
       socket?.off('newOrder')
+      socket?.off('update-status')
     }
   }, [socket, dispatch])
 

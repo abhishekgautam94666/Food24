@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+
 const userSlice = createSlice({
     name: "user",
     initialState: {
@@ -12,9 +13,8 @@ const userSlice = createSlice({
         totalAmount: 0,
         myOrders: [],
         ownerOrders: [],
-        socket: null
-
-
+        socket: null,
+        AvailableBoy: []
     },
     reducers: {
         setUserData: (state, action) => {
@@ -42,6 +42,9 @@ const userSlice = createSlice({
             }
             state.totalAmount = state.cartItems.reduce((sum, i) => sum + i.price * i.quantity, 0)
 
+        },
+        clearCart: (state) => {
+            state.cartItems = []
         },
         increaseQuantity: (state, action) => {
             const id = action.payload;
@@ -91,13 +94,30 @@ const userSlice = createSlice({
                 }
             }
         },
+
+        updateRealtimeOrderStatus: (state, action) => {
+            const { orderId, shopId, status } = action.payload;
+
+            const order = state.myOrders.find(o => o._id?.toString() == orderId)
+            if (!order) return;
+            if (order) {
+                const shopOrder = order.shopOrders?.find(so => so.shop._id?.toString() == shopId?.toString())
+                if (!shopOrder) return;
+                if (shopOrder) {
+                    shopOrder.status = status
+                }
+            }
+        },
         setSocket: (state, action) => {
             state.socket = action.payload
+        },
+        setAvailableBoy: (state, action) => {
+            state.AvailableBoy = action.payload
         }
     }
 })
 
-export const { setSocket, setOwnerOrders, addMyOrder, setMyOrders, increaseQuantity, decreaseQuantity, addToCart, updateOrderStatus, setUserData, setCurrentCity, setCurrentState, setCurrentAddress, setItemsInMyCity
+export const { clearCart, setAvailableBoy, updateRealtimeOrderStatus, setSocket, setOwnerOrders, addMyOrder, setMyOrders, increaseQuantity, decreaseQuantity, addToCart, updateOrderStatus, setUserData, setCurrentCity, setCurrentState, setCurrentAddress, setItemsInMyCity
 
 } = userSlice.actions
 export default userSlice.reducer

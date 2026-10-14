@@ -217,46 +217,15 @@ const UserDashboard = () => {
                           ₹{item.price}
                         </span>
 
-                      </div>
-
-                      <div className="flex items-center justify-between mt-3">
-
                         <div className="text-yellow-500 font-semibold flex">
-                          {renderStars(data.rating?.average || 0)}
+                          {renderStars(item.rating?.average || 0)}
                           <span className='text-xs text-gray-500'>
-                            {data.rating?.count || 0}
+                            {item.rating?.count || 0}
                           </span>
                         </div>
 
-                        <span className="text-[#ff4d2d] text-xl font-bold">
-                          ₹{item.price}
-                        </span>
-
                       </div>
-
                       <div className="flex justify-between items-center mt-5">
-
-                        {/* <div className="flex items-center gap-3">
-
-                    <button
-                      onClick={() => dispatch(decreaseQuantity(item._id))}
-                      className="w-8 h-8 rounded-full bg-gray-200 hover:bg-red-500 hover:text-white"
-                    >
-                      -
-                    </button>
-
-                    <span className="font-bold">
-                      {cartItems.find(i => i.id === item._id)?.quantity || 0}
-                    </span>
-
-                    <button
-                      onClick={() => dispatch(increaseQuantity(item._id))}
-                      className="w-8 h-8 rounded-full bg-[#ff4d2d] text-white"
-                    >
-                      +
-                    </button>
-
-                  </div> */}
 
                         <button className={`${cartItems.some(i => i.id == item._id) ? "bg-gray-800" : "bg-[#ff4d2d]"}  text-white px-4 py-2 rounded-lg`} onClick={() => {
                           dispatch(addToCart({

@@ -1,11 +1,34 @@
-import React from "react";
+import React, { useState } from "react";
 import { MdDeliveryDining } from "react-icons/md";
 import { FaMoneyBillWave, FaCalendarAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { serverUrl } from "../App";
+
 
 const UserOrderCard = ({ order }) => {
     const navigate = useNavigate()
-    console.log("order::", order);
+    const [selectedRating, setSelectedRating] = useState({})
+
+    const handlerating = async (itemId, rating) => {
+        console.log("rating", rating);
+
+        try {
+            const result = await axios.post(`${serverUrl}/api/item/rating`, {
+                itemId, rating
+            }, { withCredentials: true })
+
+            if (result.data) {
+                setSelectedRating(prev => ({
+                    ...prev,
+                    [itemId]: rating
+                }))
+            }
+        } catch (error) {
+            console.log(error);
+
+        }
+    }
 
     return (
         <div className="bg-white rounded-2xl shadow-md border p-5 hover:shadow-xl transition duration-300">
@@ -69,7 +92,25 @@ const UserOrderCard = ({ order }) => {
 
                                 <p className="font-bold text-[#ff4d2d]">
                                     ₹{item.price * item.quantity}
+
+
+                                    {shopOrder.status == "delivered" && (
+                                        <div className="flex items-center gap-1 mt-2 cursor-pointer">
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                <button
+                                                    key={star}
+                                                    onClick={() => handlerating(item.item._id, star)}
+                                                    className={`${(selectedRating[item.item._id] || 0) >= star ? "text-yellow-400" : "text-gray-300"}`}
+                                                >
+                                                    ★
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
                                 </p>
+
+
+
                             </div>
                         ))}
                     </div>
@@ -103,7 +144,8 @@ const UserOrderCard = ({ order }) => {
                     <span className="capitalize">{order.paymentMethod}</span>
                 </div>
                 {
-                    order?.payment == true ? <p className="text-lg font-semibold text-[#ff4d2d]">Paid</p> : <p className="text-lg font-semibold text-[#ff4d2d]">Transaction failed</p>
+                    order?.paymentMethod == 'online' && (order?.payment == true ? <p className="text-lg font-semibold text-[#ff4d2d]">Paid</p> : <p className="text-lg font-semibold text-[#ff4d2d]">Transaction failed</p>)
+
                 }
 
 

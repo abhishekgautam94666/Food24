@@ -11,18 +11,20 @@ function useUpdateLocation() {
 
     useEffect(() => {
         if (!userData || userData.role !== "deliveryBoy") return;
+        if (!navigator.geolocation) {
+            console.log("Geolocation is not supported by this browser");
+            return;
+        }
 
         const updateLocation = async (lat, lon) => {
             try {
-                const result = await
-                
-                
-                axios.post(`${serverUrl}/api/user/update-location`, { lat, lon }, { withCredentials: true })
+                const result = await axios.post(`${serverUrl}/api/user/update-location`, { lat, lon }, { withCredentials: true })
+                console.log("LOCATION SAVED:", lat, lon);
                 console.log("Location updated:", result);
             } catch (error) {
                 console.log(
                     "Location update error:",
-                    error.response?.data || error.message
+                    error?.response?.data || error?.message
                 );
             }
         }
@@ -37,7 +39,7 @@ function useUpdateLocation() {
 
             },
             (error) => {
-                console.log("Location error:", error.message);
+                console.log("Location error:", error.code, error.message);
 
             },
             {
@@ -50,9 +52,10 @@ function useUpdateLocation() {
 
         return () => {
             navigator.geolocation.clearWatch(watchId)
+            console.log("LOCATION WATCH CLEARED");
         }
 
-    }, [userData])
+    }, [userData?._id, userData?.role])
 
 }
 

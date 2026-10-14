@@ -11,6 +11,7 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { updateOrderStatus } from "../redux/userSlice";
 import { useState } from "react";
+import useGetOwnerOrders from "../hooks/useGetOwnerOrders";
 
 const OwnerOrderCard = ({ order }) => {
   const dispatch = useDispatch()
@@ -18,11 +19,16 @@ const OwnerOrderCard = ({ order }) => {
   console.log("availableBoys", availableBoys);
 
 
+
+
   const handleUpdateStatus = async (orderId, shopId, status) => {
     try {
       const result = await axios.post(`${serverUrl}/api/order/update-status/${orderId}/${shopId}`, { status }, { withCredentials: true })
+      console.log('result,', result);
+
       dispatch(updateOrderStatus({ orderId, shopId, status }))
-      setAvailableBoys(result.data.availableBoys)
+      setAvailableBoys(result?.data?.availableBoys)
+
 
       console.log("updatedata", result?.data);
 

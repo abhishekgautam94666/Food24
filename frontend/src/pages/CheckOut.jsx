@@ -13,6 +13,7 @@ import { MdDeliveryDining } from "react-icons/md";
 import axios from 'axios';
 import { serverUrl } from '../App'
 import toast from 'react-hot-toast';
+import { clearCart } from '../redux/userSlice';
 
 
 function RecenterMap({ location }) {
@@ -98,6 +99,7 @@ const CheckOut = () => {
           console.log("VERIFY RESULT:", result.data)
 
           toast.success("Payment successful")
+          dispatch(clearCart())
           navigate("/order-placed")
 
         } catch (error) {
@@ -136,10 +138,9 @@ const CheckOut = () => {
       )
 
       console.log("result:", result);
-
       if (paymentMethod == "cod") {
         toast.success(result.data.message);
-        // dispatch(addMyOrder(result.data))
+        dispatch(clearCart())
         console.log(result);
 
         setTimeout(() => {
