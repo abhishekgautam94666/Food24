@@ -6,7 +6,7 @@ import { useEffect } from 'react'
 import axios from 'axios'
 import toast from "react-hot-toast";
 import DeliveryBoyTracking from './DeliveryBoyTracking'
-import { BarChart, CartesianGrid, ResponsiveContainer, XAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useNavigate } from 'react-router-dom'
 
 const DeliveryBoy = () => {
@@ -20,8 +20,7 @@ const DeliveryBoy = () => {
   const [liveLocation, setLiveLocation] = useState(null)
   const [todayDeliveries, setTodayDeliveries] = useState([])
 
-  //remove
-  const navigate = useNavigate()
+
 
   useEffect(() => {
 
@@ -65,6 +64,10 @@ const DeliveryBoy = () => {
       }
     };
   }, [socket, userData]);
+
+  const ratePerDelivery = 50;
+  const totalEarning = todayDeliveries.reduce((sum, d) => sum + d.count * ratePerDelivery, 0)
+
 
   const handleTodayDeliveries = async () => {
 
@@ -227,17 +230,46 @@ const DeliveryBoy = () => {
 
           </div>}
 
-        <div className='w-[90%] bg-white rounded-2xl shadow-md p-5 mb-6 border border-orange-100'>
-          <h1 className='text-lg font-bold mb-3 text-[#ff4d2d]'>Today Deliveries</h1>
+
+        <div className="w-[90%] bg-white rounded-2xl shadow-md p-5 mb-6 border border-orange-100">
+          <h1 className="text-lg font-bold mb-3 text-[#ff4d2d]">
+            Today Deliveries
+          </h1>
 
           <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={todayDeliveries} >
-              <CartesianGrid strokeDasharray='3 3' />
-              <XAxis dataKey="hour" tickFormatter={(h)=>`${h}`}/>
+            <BarChart data={todayDeliveries}>
+              <CartesianGrid strokeDasharray="3 3" />
+
+              <XAxis
+                dataKey="hour"
+                tickFormatter={(h) => {
+                  const date = new Date();
+                  date.setHours(h, 0, 0, 0);
+                  return date.toLocaleTimeString("en-IN", {
+                    hour: "numeric",
+                    hour12: true,
+                  });
+                }}
+              />
+
+              <YAxis dataKey="count" allowDecimals={false}
+              />
+
+              <Tooltip
+                formatter={(value) => [value, "Orders"]}
+                labelFormatter={(label) => `Hour: ${label}:00`}
+              />
+              <Bar dataKey="count" fill="#ff4d2d" />
+
             </BarChart>
           </ResponsiveContainer>
 
+          <div className='max-w-sm mx-auto  mt-6 bg-white rounded-2xl shadow-lg text-center'>
+            <h1 className='text-xl font-semibold text-gray-800 mb-2'>Total's Earning</h1>
+            <span className='text-3xl font-bold text-green-600'>₹{totalEarning}</span>
+          </div>
         </div>
+
 
         {currentOrder && <div className='bg-white rounded-2xl p-5 shadow-md w-[90%] border border-orange-100'>
           <h2 className='text-lg font-bold mb-3'>Current Order</h2>
