@@ -51,7 +51,7 @@ const OwnerDashboard = () => {
 
                 <div className='w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center mb-5'>
 
-                  <FaUtensils className='text-[#ff4d2d] text-4xl sm:text-5xl' />
+                  <FaUtensils className='text-accent text-4xl sm:text-5xl' />
 
                 </div>
 

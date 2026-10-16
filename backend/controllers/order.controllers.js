@@ -6,7 +6,6 @@ import { sendDeliveryOtpMail } from "../utils/mail.js"
 import Razorpay from "razorpay"
 import crypto from "crypto"
 import dotenv from "dotenv"
-import { setAvailableBoy } from "../../frontend/src/redux/userSlice.js"
 dotenv.config()
 
 const instance = new Razorpay({

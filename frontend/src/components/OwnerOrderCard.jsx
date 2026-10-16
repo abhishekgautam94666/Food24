@@ -60,13 +60,13 @@ const OwnerOrderCard = ({ order }) => {
             <img src={item.item.image} alt="" className="w-30 h-20 rounded-lg object-cover " />
             <p className="font-semibold text-md text-gray-800 mt-2 truncate">{item.name}</p>
             <p className="text-sm text-gray-600 mt-1">Qty: {item.quantity} x ₹{item.price}</p>
-            <p className="font-bold text-[#ff4d2d]  mt-1">₹{item.price * item.quantity}</p>
+            <p className="font-bold text-accent  mt-1">₹{item.price * item.quantity}</p>
           </div>
         ))}
       </div>
 
       <div className="flex justify-between items-center mt-auto pt-3 border-gray-100">
-        <span className="text-sm text-gray-600">Status: <span className="font-semibold text-red-500 capitalize">{order.shopOrders.status}</span></span>
+        <span className="text-sm text-gray-600">Status: <span className="font-semibold text-accent capitalize">{order.shopOrders.status}</span></span>
 
         <select className="rounded-md border px-3 py-1 text-sm focus:outline-none focus:ring-2" onChange={(e) => handleUpdateStatus(order._id, order.shopOrders.shop._id, e.target.value)}>
 

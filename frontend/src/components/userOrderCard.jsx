@@ -62,7 +62,7 @@ const UserOrderCard = ({ order }) => {
                     key={shopOrder._id}
                     className="mb-5 border rounded-xl p-4 bg-gray-50"
                 >
-                    <h3 className="text-lg font-semibold text-[#ff4d2d]">
+                    <h3 className="text-lg font-semibold text-accent">
                         {shopOrder.shop?.name}
                     </h3>
 
@@ -120,17 +120,17 @@ const UserOrderCard = ({ order }) => {
                             Restaurant Total
                         </span>
 
-                        <span className="font-bold text-lg text-[#ff4d2d]">
+                        <span className="font-bold text-lg text-accent">
                             ₹{shopOrder.subtotal}
                         </span>
                     </div>
                     <div className="flex items-center gap-2">
                         <span className="flex items-center gap-2 text-gray-700 font-medium">
-                            <MdDeliveryDining className="text-xl text-[#ff4d2d]" />
+                            <MdDeliveryDining className="text-xl text-accent" />
                             Order Status
                         </span>
 
-                        <span className="font-semibold capitalize text-[#ff4d2d]">
+                        <span className="font-semibold capitalize text-accent">
                             {shopOrder.status?.replaceAll("_", " ")}
                         </span>
                     </div>
@@ -144,7 +144,7 @@ const UserOrderCard = ({ order }) => {
                     <span className="capitalize">{order.paymentMethod}</span>
                 </div>
                 {
-                    order?.paymentMethod == 'online' && (order?.payment == true ? <p className="text-lg font-semibold text-[#ff4d2d]">Paid</p> : <p className="text-lg font-semibold text-[#ff4d2d]">Transaction failed</p>)
+                    order?.paymentMethod == 'online' && (order?.payment == true ? <p className="text-lg font-semibold text-accent">Paid</p> : <p className="text-lg font-semibold text-[#ff4d2d]">Transaction failed</p>)
 
                 }
 
@@ -155,7 +155,7 @@ const UserOrderCard = ({ order }) => {
                 <span>
                     Total: ₹{order.totalAmount}
                 </span>
-                <button className="bg-[#ff4d2d] hover:bg-[#e64526] text-white px-4 py-2 rounded-lg text-sm" onClick={() => navigate(`/track-order/${order._id}`)}>Track Order</button>
+                <button className="bg-accent hover:bg-red-700 cursor-pointer text-white px-4 py-2 rounded-lg text-sm" onClick={() => navigate(`/track-order/${order._id}`)}>Track Order</button>
             </div>
         </div>
     );

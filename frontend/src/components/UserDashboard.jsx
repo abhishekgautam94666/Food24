@@ -73,10 +73,10 @@ const UserDashboard = () => {
   return (
     <>
       <Nav />
-      <div className="bg-gray-50 min-h-screen mt-18">
+      <div className="bg-page min-h-screen mt-18">
 
         {/* Hero Section */}
-        <section className="bg-[#ff4d2d] text-white py-16 px-6 text-center">
+        <section className="bg-accent text-white py-16 px-6 text-center">
 
           <h1 className="text-4xl md:text-6xl font-bold">
             Delicious Food Delivered
@@ -144,7 +144,7 @@ const UserDashboard = () => {
                       {item.city}, {item.state}
                     </p>
 
-                    <p className="mt-3 text-[#ff4d2d] font-semibold cursor-pointer">
+                    <p className="mt-3 text-accent font-semibold cursor-pointer">
                       {item.items.length} Items Available
                     </p>
 
@@ -213,7 +213,7 @@ const UserDashboard = () => {
 
 
 
-                        <span className="text-[#ff4d2d] text-xl font-bold">
+                        <span className="text-accent text-xl font-bold">
                           ₹{item.price}
                         </span>
 
@@ -227,7 +227,7 @@ const UserDashboard = () => {
                       </div>
                       <div className="flex justify-between items-center mt-5">
 
-                        <button className={`${cartItems.some(i => i.id == item._id) ? "bg-gray-800" : "bg-[#ff4d2d]"}  text-white px-4 py-2 rounded-lg`} onClick={() => {
+                        <button className={`${cartItems.some(i => i.id == item._id) ? "bg-gray-800" : "bg-accent"}  text-white px-4 py-2 rounded-lg`} onClick={() => {
                           dispatch(addToCart({
                             id: item._id,
                             name: item.name,
