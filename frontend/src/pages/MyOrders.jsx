@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import UserOrderCard from "../components/UserOrderCard";
+import UserOrderCard from "../components/UserOrderCard"
 import useGetMyOrders from "../hooks/useGetMyOrders";
 import OwnerOrderCard from "../components/OwnerOrderCard";
 import useGetOwnerOrders from "../hooks/useGetOwnerOrders";
