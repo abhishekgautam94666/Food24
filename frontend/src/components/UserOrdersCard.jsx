@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { serverUrl } from "../App";
 
-const UserOrdersCard = () => {
+const UserOrdersCard = ({ order }) => {
   const navigate = useNavigate()
   const [selectedRating, setSelectedRating] = useState({})
 
