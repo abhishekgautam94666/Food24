@@ -2,14 +2,13 @@ import axios from "axios"
 import React, { useEffect } from 'react'
 import { serverUrl } from "../App"
 import { useDispatch, useSelector } from "react-redux"
-import { setMYShopData } from "../redux/ownerSlice"
 import { setItemsInMyCity } from "../redux/userSlice"
 
 
 
 function useGetItemsByCity() {
     const dispatch = useDispatch()
-    const { userData, currentCity } = useSelector(state => state.user);
+    const { currentCity } = useSelector(state => state.user);
     useEffect(() => {
         if (!currentCity) return;
         const fetchShop = async () => {

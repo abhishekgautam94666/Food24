@@ -3,7 +3,7 @@ import { ThreeDots } from "react-loader-spinner";
 import toast from "react-hot-toast";
 import { FaUtensils } from "react-icons/fa";
 import { IoIosArrowRoundBack } from "react-icons/io";
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from "axios"
 import { serverUrl } from "../App"
@@ -12,7 +12,7 @@ import { setMYShopData } from '../redux/ownerSlice';
 
 const AddItem = () => {
     const navigate = useNavigate()
-    const { myShopData } = useSelector(state => state.owner)
+    // const { myShopData } = useSelector(state => state.owner)
     const dispatch = useDispatch()
 
     const [price, setPrice] = useState(0)
