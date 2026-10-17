@@ -36,7 +36,7 @@ const UserOrdersCard = () => {
       <div className="flex justify-between items-center border-b pb-3 mb-4">
         <div>
           <h2 className="text-xl font-bold text-gray-800">
-            Order #{order._id.slice(-6).toUpperCase()}
+          {order._id.slice(-6).toUpperCase()}
           </h2>
 
           <p className="text-sm text-gray-500 flex items-center gap-2 mt-1">
