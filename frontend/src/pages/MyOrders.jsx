@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import UserOrderCard from "../components/UserOrderCard"
+import UserOrdersCard from "../components/UserOrdersCard";
 import useGetMyOrders from "../hooks/useGetMyOrders";
 import OwnerOrderCard from "../components/OwnerOrderCard";
 import useGetOwnerOrders from "../hooks/useGetOwnerOrders";
@@ -52,7 +52,7 @@ const MyOrders = () => {
           <div className="space-y-6">
             {myOrders.map((order) => (
 
-              <UserOrderCard key={order._id} order={order} />
+              <UserOrdersCard key={order._id} order={order} />
             ))}
           </div>
         ) : userData.role === "owner" ? (
