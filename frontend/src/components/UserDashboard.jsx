@@ -15,9 +15,10 @@ import { FaStar, FaRegStar, FaStarHalfAlt } from "react-icons/fa";
 import { data, useNavigate } from 'react-router-dom';
 import { addToCart } from '../redux/userSlice';
 import Nav from './Nav';
-
+import useGetItemsByCity from '../hooks/useGetItemsByCity';
 
 const UserDashboard = () => {
+  useGetItemsByCity()
   const [shop, setShop] = useState([])
   const { currentCity, itemsInMyCity, cartItems } = useSelector(state => state.user)
   const dispatch = useDispatch();
