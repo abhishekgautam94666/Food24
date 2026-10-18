@@ -16,7 +16,7 @@ const authRouter = express.Router();
 
 
 
-0
+
 authRouter.post("/signup", signUp);
 authRouter.post("/signin", signIn);
 authRouter.post("/signout", signOut);
@@ -38,7 +38,7 @@ authRouter.get(
       secure:true,
       sameSite:"none"
     });
-    res.redirect("http://localhost:5173");
+    res.redirect("https://food24-1.onrender.com");
   },
 );
 export default authRouter;
