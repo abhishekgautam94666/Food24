@@ -28,6 +28,9 @@ export const sendOtpMail = async (to, otp) => {
 
 
 export const sendDeliveryOtpMail = async (user, otp) => {
+    if (!user?.email) {
+    throw new Error("Customer email not found");
+  }
   await transporter.sendMail({
     from: process.env.EMAIL,
     to: user.email,
