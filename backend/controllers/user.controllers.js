@@ -29,7 +29,7 @@ export const updateUserLocation = async (req, res) => {
                 type: "Point",
                 coordinates: [Number(lon), Number(lat)]
             }
-        }, { new: true })
+        }, {returnDocument: "after"})
         if (!user) {
             return res.status(400).json({ message: "user is not found" })
         }
