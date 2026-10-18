@@ -18,7 +18,7 @@ import CartPage from "./components/CartPage";
 import CheckOut from "./pages/CheckOut";
 import OrderPlaced from "./pages/OrderPlaced";
 import MyOrders from "./pages/MyOrders";
-import useGetMyOrders from "./hooks/useGetMyOrders";
+//import useGetMyOrders from "./hooks/useGetMyOrders";
 import useGetOwnerOrders from "./hooks/useGetOwnerOrders";
 import useUpdateLocation from "./hooks/useUpdateLocation";
 import TrackOrderPage from "./pages/TrackOrderPage";
@@ -35,6 +35,7 @@ function App() {
   useGetCity()
   useGetMyShop()
  // useGetMyOrders()
+  useGetItemsByCity()
   useGetOwnerOrders()
   const { userData } = useSelector(state => state.user)
   const dispatch = useDispatch()
