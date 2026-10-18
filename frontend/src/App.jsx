@@ -34,7 +34,6 @@ function App() {
   useUpdateLocation()
   useGetCity()
   useGetMyShop()
-  useGetItemsByCity()
  // useGetMyOrders()
   useGetOwnerOrders()
   const { userData } = useSelector(state => state.user)
