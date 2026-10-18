@@ -86,6 +86,7 @@ export const signOut = async (req, res) => {
       httpOnly: true,
       sameSite: "none",
       secure: true,
+      path: "/"
 
     });
 
