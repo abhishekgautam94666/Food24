@@ -57,7 +57,7 @@ export const editItem = async (req, res) => {
         }
         const item = await Item.findByIdAndUpdate(itemId,
             updateData,
-            { new: true });
+            { returnDocument: "after" });
 
         if (!item) {
             return res.status(404).json({ message: "item not found" })
