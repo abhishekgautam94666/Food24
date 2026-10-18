@@ -120,7 +120,6 @@ const DeliveryBoy = () => {
       return;
     }
     try {
-      45
       setLoading(true);
       const result = await axios.post(`${serverUrl}/api/order/send-delivery-otp`, { orderId: currentOrder._id, shopOrderId: currentOrder.shopOrder._id }, { withCredentials: true });
       toast.success(
