@@ -25,9 +25,14 @@ const Nav = () => {
         try {
             const result = await axios.post(`${serverUrl}/api/auth/signout`, {}, { withCredentials: true })
             dispatch(setUserData(null))
+            toast.success(result.data?.message || "Logout successful!");
             navigate("/signin", { replace: true });
         } catch (error) {
             console.log("logout error", error);
+            toast.error(
+                error.response?.data?.message ||
+                "Logout failed! Please try again."
+            );
 
         }
     }
