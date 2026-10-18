@@ -29,16 +29,19 @@ export const sendOtpMail = async (to, otp) => {
 
 export const sendDeliveryOtpMail = async (user, otp) => {
     if (!user?.email) {
-    throw new Error("Customer email not found");
-  }
-  await transporter.sendMail({
-    from: process.env.EMAIL,
-    to: user.email,
-    subject: "Delivery OTP",
-    html: `
-      <h2>Confirm Order Deliverd OTP</h2>
-      <p>Your OTP is: <b>${otp}</b></p>
-      <p>This OTP will expire in 5 minutes.</p>
-    `
-  })
+        throw new Error("Customer email not found");
+    }
+
+    const info = await transporter.sendMail({
+        from: process.env.EMAIL,
+        to: user.email,
+        subject: "Delivery OTP",
+        html: `
+            <h2>Confirm Order Delivery OTP</h2>
+            <p>Your OTP is: <b>${otp}</b></p>
+            <p>This OTP will expire in 5 minutes.</p>
+        `
+    });
+
+    console.log("Delivery OTP email sent:", info.messageId);
 };
